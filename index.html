@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nevura | System Intelligence Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nevura: {
+                            dark: '#020a13',
+                            gold: '#d4af37',
+                            'gold-light': '#fcf6ba',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020a13;
+        }
+
+        /* Gradiente metálico */
+        .gold-gradient-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% auto;
+            animation: shine 5s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Efecto cristal mejorado */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .glass-card-hover:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateY(-5px);
+        }
+
+        /* Scrollbar oculto para el carrusel */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animaciones de entrada */
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-200 {
+            transition-delay: 0.2s;
+        }
+
+        .delay-400 {
+            transition-delay: 0.4s;
+        }
+
+        /* Canvas de fondo */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* Detrás de todo */
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="text-slate-300 antialiased overflow-x-hidden relative">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <nav class="fixed w-full z-50 bg-nevura-dark/80 backdrop-blur-lg border-b border-white/5 transition-all duration-300"
+        id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3 group cursor-pointer">
+                    <img src="assets/img/logo-nevura.png" alt="Nevura Logo"
+                        class="h-8 w-auto group-hover:rotate-[360deg] transition-transform duration-700">
+                    <span class="text-2xl font-extrabold tracking-[0.15em] text-white">NEVURA</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#enfoque"
+                        class="hover:text-nevura-gold transition-colors text-sm uppercase tracking-wider font-medium">Enfoque</a>
+                    <a href="#soluciones"
+                        class="hover:text-nevura-gold transition-colors text-sm uppercase tracking-wider font-medium">Soluciones</a>
+                    <a href="#testimonios"
+                        class="hover:text-nevura-gold transition-colors text-sm uppercase tracking-wider font-medium">Testimonios</a>
+                    <a href="#contacto"
+                        class="px-6 py-2 border-2 border-nevura-gold text-nevura-gold text-sm font-bold uppercase tracking-wider rounded hover:bg-nevura-gold hover:text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                        Diagnóstico
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-white hover:text-nevura-gold focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl transition-transform duration-300" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu"
+            class="md:hidden absolute top-20 left-0 w-full bg-nevura-dark/95 backdrop-blur-xl border-b border-white/10 overflow-hidden h-0 transition-all duration-500 ease-in-out">
+            <div class="px-4 pt-4 pb-8 space-y-4 text-center">
+                <a href="#enfoque"
+                    class="block text-white hover:text-nevura-gold text-lg font-medium py-2 mobile-link">Enfoque</a>
+                <a href="#soluciones"
+                    class="block text-white hover:text-nevura-gold text-lg font-medium py-2 mobile-link">Soluciones</a>
+                <a href="#testimonios"
+                    class="block text-white hover:text-nevura-gold text-lg font-medium py-2 mobile-link">Testimonios</a>
+                <a href="#contacto"
+                    class="inline-block mt-4 px-8 py-3 border-2 border-nevura-gold text-nevura-gold font-bold uppercase tracking-wider rounded hover:bg-nevura-gold hover:text-black transition-all duration-300 mobile-link">
+                    Diagnóstico Gratuito
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <p
+                    class="reveal-up text-nevura-gold font-bold tracking-[0.3em] uppercase mb-6 text-sm inline-flex items-center gap-2">
+                    System Intelligence Solutions
+                </p>
+                <h1 class="reveal-up delay-200 text-5xl md:text-8xl font-black text-white mb-8 leading-none">
+                    Tu negocio,<br>
+                    <span class="gold-gradient-text">Arquitectura Escalable.</span>
+                </h1>
+                <p class="reveal-up delay-400 mt-4 max-w-2xl mx-auto text-xl text-slate-400 leading-relaxed">
+                    Diseñamos sistemas inteligentes. Fusionamos análisis de procesos, automatización y desarrollo de
+                    software a medida para transformar operaciones manuales en empresas de alto rendimiento.
+                </p>
+                <div class="reveal-up delay-400 mt-12 flex flex-wrap justify-center gap-4">
+                    <a href="#portafolio"
+                        class="group relative px-8 py-4 bg-nevura-gold text-black font-bold rounded overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+                        <span class="relative z-10 flex items-center gap-2">Ver Casos de Éxito <i
+                                class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i></span>
+                        <div
+                            class="absolute inset-0 bg-white/30 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500">
+                        </div>
+                    </a>
+                    <a href="#enfoque"
+                        class="px-8 py-4 border border-slate-600 text-white rounded hover:border-nevura-gold hover:text-nevura-gold transition-all duration-300">
+                        Nuestro Enfoque
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="enfoque" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="reveal-up text-center mb-20">
+                <h2 class="text-3xl md:text-5xl font-bold text-white">El Camino a la Empresa Inteligente</h2>
+                <p class="mt-4 text-slate-400 text-lg max-w-2xl mx-auto">No solo entregamos apps; construimos la
+                    infraestructura digital que soporta tu crecimiento.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 lg:gap-12 items-center relative">
+
+                <div class="reveal-up glass-card glass-card-hover p-10 rounded-3xl relative group z-10">
+                    <div
+                        class="absolute top-4 right-6 text-7xl font-black text-white/10 select-none pointer-events-none font-sans">
+                        1</div>
+                    <div
+                        class="hidden md:block absolute -right-6 top-1/2 -translate-y-1/2 z-20 text-nevura-gold text-2xl">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div class="text-5xl mb-6 text-slate-600 group-hover:text-slate-400 transition-colors"><i
+                            class="fa-solid fa-rocket"></i></div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Emprendedor</h3>
+                    <p class="text-slate-400 leading-relaxed">Operación manual, dependencia del fundador y datos
+                        dispersos. El caos donde todo urge.</p>
+                </div>
+
+                <div class="reveal-up delay-200 glass-card glass-card-hover p-10 rounded-3xl relative group z-10">
+                    <div
+                        class="absolute top-4 right-6 text-7xl font-black text-white/10 select-none pointer-events-none font-sans">
+                        2</div>
+                    <div
+                        class="hidden md:block absolute -right-6 top-1/2 -translate-y-1/2 z-20 text-nevura-gold text-2xl">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                    <div class="text-5xl mb-6 text-slate-500 group-hover:text-slate-300 transition-colors"><i
+                            class="fa-solid fa-briefcase"></i></div>
+                    <h3 class="text-2xl font-bold text-white mb-3">Negocio</h3>
+                    <p class="text-slate-400 leading-relaxed">Ventas estables, pero herramientas desconectadas. Hojas de
+                        cálculo gigantes y procesos repetitivos.</p>
+                </div>
+
+                <div
+                    class="reveal-up delay-400 p-10 rounded-3xl relative bg-gradient-to-br from-slate-900 via-nevura-dark to-black border-2 border-nevura-gold shadow-[0_0_50px_rgba(212,175,55,0.2)] transform scale-105 z-20 relative overflow-hidden">
+                    <div
+                        class="absolute top-4 right-6 text-7xl font-black text-nevura-gold/20 select-none pointer-events-none font-sans">
+                        3</div>
+                    <div class="absolute inset-0 bg-nevura-gold/10 animate-pulse rounded-3xl pointer-events-none"></div>
+                    <div class="text-6xl mb-6 text-nevura-gold"><i class="fa-solid fa-building-shield"></i></div>
+                    <h3 class="text-3xl font-black text-white mb-4">Empresa</h3>
+                    <p class="text-slate-200 leading-relaxed mb-6">Sistemas integrados, flujos automatizados y datos en
+                        tiempo real. Escalabilidad sin aumentar el caos.</p>
+                    <div class="flex flex-wrap gap-2 text-nevura-gold text-xs font-bold uppercase tracking-wider">
+                        <span class="px-3 py-1 bg-nevura-gold/10 border border-nevura-gold/30 rounded-full">Delega tu
+                            trabajo</span>
+                        <span class="px-3 py-1 bg-nevura-gold/10 border border-nevura-gold/30 rounded-full">Crece como
+                            los grandes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </section>
+
+    <section id="capacidades" class="py-0 relative border-t border-white/5 bg-black">
+        <!-- Carrusel de Capacidades -->
+        <div class="relative h-[600px] w-full overflow-hidden group" id="capabilities-carousel">
+            <!-- Slides -->
+            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out opacity-100 z-10 slide active"
+                style="background-image: url('assets/img/sales.png'); background-size: cover; background-position: center;">
+                <div class="absolute inset-0 bg-black/70 flex flex-col justify-center items-center text-center p-4">
+                    <div class="reveal-up text-nevura-gold text-6xl mb-4"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3
+                        class="reveal-up delay-200 text-4xl md:text-5xl font-black text-white mb-2 uppercase tracking-wider">
+                        Automatiza Ventas</h3>
+                    <p class="reveal-up delay-400 text-slate-300 text-lg max-w-2xl">Convierte leads en clientes sin
+                        intervención manual. Flujos constantes 24/7.</p>
+                </div>
+            </div>
+            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out opacity-0 z-0 slide"
+                style="background-image: url('assets/img/invoice.png'); background-size: cover; background-position: center;">
+                <div class="absolute inset-0 bg-black/70 flex flex-col justify-center items-center text-center p-4">
+                    <div class="text-nevura-gold text-6xl mb-4"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    <h3 class="text-4xl md:text-5xl font-black text-white mb-2 uppercase tracking-wider">Compras y
+                        Facturas</h3>
+                    <p class="text-slate-300 text-lg max-w-2xl">Control total de egresos e ingresos. Tu contabilidad al
+                        día, automáticamente.</p>
+                </div>
+            </div>
+            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out opacity-0 z-0 slide"
+                style="background-image: url('assets/img/connect.png'); background-size: cover; background-position: center;">
+                <div class="absolute inset-0 bg-black/70 flex flex-col justify-center items-center text-center p-4">
+                    <div class="text-nevura-gold text-6xl mb-4"><i class="fa-solid fa-plug"></i></div>
+                    <h3 class="text-4xl md:text-5xl font-black text-white mb-2 uppercase tracking-wider">Conecta
+                        Herramientas</h3>
+                    <p class="text-slate-300 text-lg max-w-2xl">Unifica tu ecosistema. Haz que tus apps hablen entre sí
+                        sin fricción.</p>
+                </div>
+            </div>
+            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out opacity-0 z-0 slide"
+                style="background-image: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); background-size: cover; background-position: center;">
+                <div class="absolute inset-0 bg-black/70 flex flex-col justify-center items-center text-center p-4">
+                    <div class="text-nevura-gold text-6xl mb-4"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <h3 class="text-4xl md:text-5xl font-black text-white mb-2 uppercase tracking-wider">Controla
+                        Inventarios</h3>
+                    <p class="text-slate-300 text-lg max-w-2xl">Visibilidad en tiempo real de tu stock. Evita pérdidas y
+                        optimiza recursos.</p>
+                </div>
+            </div>
+            <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out opacity-0 z-0 slide"
+                style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'); background-size: cover; background-position: center;">
+                <div class="absolute inset-0 bg-black/70 flex flex-col justify-center items-center text-center p-4">
+                    <div class="text-nevura-gold text-6xl mb-4"><i class="fa-solid fa-users"></i></div>
+                    <h3 class="text-4xl md:text-5xl font-black text-white mb-2 uppercase tracking-wider">Gestiona
+                        Clientes</h3>
+                    <p class="text-slate-300 text-lg max-w-2xl">CRM integrado que nutre relaciones y potencia tu equipo
+                        comercial.</p>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <button
+                class="absolute top-1/2 left-4 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-nevura-gold hover:text-black transition-colors z-20"
+                onclick="moveSlide(-1)">
+                <i class="fa-solid fa-chevron-left text-xl"></i>
+            </button>
+            <button
+                class="absolute top-1/2 right-4 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-nevura-gold hover:text-black transition-colors z-20"
+                onclick="moveSlide(1)">
+                <i class="fa-solid fa-chevron-right text-xl"></i>
+            </button>
+
+            <!-- Indicators -->
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+                <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator active"
+                    onclick="currentSlide(0)"></button>
+                <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"
+                    onclick="currentSlide(1)"></button>
+                <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"
+                    onclick="currentSlide(2)"></button>
+                <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"
+                    onclick="currentSlide(3)"></button>
+                <button class="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors indicator"
+                    onclick="currentSlide(4)"></button>
+            </div>
+        </div>
+    </section>
+
+    <section id="soluciones" class="py-24 bg-black/40 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+            <div class="reveal-up text-center mb-12">
+                <span
+                    class="text-nevura-gold font-bold tracking-[0.2em] text-sm uppercase flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> Nuestros Productos
+                </span>
+                <h2 class="text-3xl md:text-5xl font-bold text-white mt-4">Soluciones Nevura</h2>
+                <p class="mt-4 text-slate-400 max-w-2xl mx-auto">Plataformas propias diseñadas para nichos específicos.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Flux App Card -->
+                <div
+                    class="reveal-up group relative overflow-hidden rounded-3xl bg-slate-900 border border-white/10 hover:border-nevura-gold/50 transition-all duration-500 hover:-translate-y-2 h-[400px]">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/img/apple-pay.png')] bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity duration-500">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+
+                    <div class="absolute bottom-0 left-0 p-8 w-full z-10">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 text-2xl">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">Flux App</h3>
+                                <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Fintech
+                                    Personal</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-300 text-lg mb-6">Tu control financiero personal. Automatización de gastos
+                            hormiga y proyección de ahorro inteligente.</p>
+                        <a href="#"
+                            class="inline-flex items-center gap-2 text-nevura-gold font-bold hover:gap-3 transition-all">Ver
+                            Más <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Epicura (Restaurant) Card -->
+                <div
+                    class="reveal-up delay-200 group relative overflow-hidden rounded-3xl bg-slate-900 border border-white/10 hover:border-nevura-gold/50 transition-all duration-500 hover:-translate-y-2 h-[400px]">
+                    <div
+                        class="absolute inset-0 bg-[url('assets/img/cocina.png')] bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity duration-500">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+
+                    <div class="absolute bottom-0 left-0 p-8 w-full z-10">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center overflow-hidden p-2">
+                                <img src="assets/img/epicura-logo.png" alt="Epicura Logo"
+                                    class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">Epicura</h3>
+                                <span class="text-xs font-bold text-red-400 uppercase tracking-widest">Gestión
+                                    Restaurantera</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-300 text-lg mb-6">El sistema operativo para restaurantes. Estandarización
+                            de recetas, costos e inventarios.</p>
+                        <a href="#"
+                            class="inline-flex items-center gap-2 text-nevura-gold font-bold hover:gap-3 transition-all">Ver
+                            Más <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonios" class="py-16 bg-black relative border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="reveal-up text-center mb-10">
+                <span class="text-slate-500 font-bold tracking-[0.2em] text-xs uppercase">Casos de Éxito</span>
+                <h2 class="text-2xl md:text-4xl font-bold text-white mt-2">Lo que dicen nuestros clientes</h2>
+            </div>
+
+            <!-- Testimonial Carousel -->
+            <div class="relative h-[320px] w-full max-w-4xl mx-auto overflow-hidden" id="testimonial-carousel">
+
+                <!-- Slide 1: Lebelt -->
+                <div
+                    class="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-100 z-10 t-slide active flex flex-col items-center justify-center text-center px-4">
+                    <div class="w-20 h-20 rounded-full border-2 border-nevura-gold p-1 mb-4">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80"
+                            alt="Cliente"
+                            class="w-full h-full rounded-full object-cover grayscale hover:grayscale-0 transition-all">
+                    </div>
+                    <div class="flex gap-1 text-nevura-gold text-lg mb-4">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i>
+                    </div>
+                    <blockquote class="text-xl md:text-2xl text-slate-300 italic mb-6 max-w-2xl leading-relaxed">
+                        "La implementación de <span class="text-white font-bold">Lebelt ERP</span> transformó
+                        completamente nuestra visibilidad comercial. Pasamos de hojas de cálculo a un control total en
+                        semanas."
+                    </blockquote>
+                    <div>
+                        <h4 class="text-white font-bold text-lg">Carlos Rodríguez</h4>
+                        <p class="text-nevura-gold text-sm uppercase tracking-wider">Director General, TechFlow</p>
+                    </div>
+                </div>
+
+                <!-- Slide 2: Workflows -->
+                <div
+                    class="absolute inset-0 transition-opacity duration-700 ease-in-out opacity-0 z-0 t-slide flex flex-col items-center justify-center text-center px-4">
+                    <div class="w-20 h-20 rounded-full border-2 border-nevura-gold p-1 mb-4">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80"
+                            alt="Cliente"
+                            class="w-full h-full rounded-full object-cover grayscale hover:grayscale-0 transition-all">
+                    </div>
+                    <div class="flex gap-1 text-nevura-gold text-lg mb-4">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i>
+                    </div>
+                    <blockquote class="text-xl md:text-2xl text-slate-300 italic mb-6 max-w-2xl leading-relaxed">
+                        "Gracias a la automatización de <span class="text-white font-bold">Workflows</span>, ahorramos
+                        más de 20 horas semanales en tareas administrativas. El ROI fue inmediato."
+                    </blockquote>
+                    <div>
+                        <h4 class="text-white font-bold text-lg">Ana Martínez</h4>
+                        <p class="text-nevura-gold text-sm uppercase tracking-wider">Gerente de Operaciones, NovaDesign
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Dots -->
+            <div class="flex justify-center gap-3 mt-4">
+                <button
+                    class="w-2 h-2 rounded-full bg-slate-700 hover:bg-nevura-gold transition-colors t-indicator active"
+                    onclick="currentTSlide(0)"></button>
+                <button class="w-2 h-2 rounded-full bg-slate-700 hover:bg-nevura-gold transition-colors t-indicator"
+                    onclick="currentTSlide(1)"></button>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="contacto" class="py-32 relative overflow-hidden border-t border-white/5">
+        <div class="reveal-up max-w-5xl mx-auto px-4 relative z-10 flex flex-col md:flex-row gap-16 items-center">
+
+            <div class="flex-1 text-center md:text-left">
+                <h2 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">Estructuremos<br>tu siguiente
+                    nivel.</h2>
+                <p class="text-xl text-slate-400 mb-8 leading-relaxed">
+                    Tienes la visión. Nosotros la ingeniería para hacerla escalable. Agenda un diagnóstico para analizar
+                    tus flujos actuales.
+                </p>
+                <div class="flex items-center justify-center md:justify-start gap-6 text-slate-500">
+                    <a href="#"
+                        class="text-3xl hover:text-nevura-gold hover:-translate-y-1 transition-all duration-300"><i
+                            class="fa-brands fa-linkedin"></i></a>
+                    <a href="#"
+                        class="text-3xl hover:text-nevura-gold hover:-translate-y-1 transition-all duration-300"><i
+                            class="fa-brands fa-github"></i></a>
+                    <a href="mailto:hola@nevura.com"
+                        class="text-3xl hover:text-nevura-gold hover:-translate-y-1 transition-all duration-300"><i
+                            class="fa-solid fa-envelope"></i></a>
+                </div>
+            </div>
+
+            <div class="flex-1 w-full max-w-md">
+                <form class="glass-card p-8 rounded-3xl relative overflow-hidden">
+                    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+                    <div class="mb-4 relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="text" required
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-slate-500 focus:border-nevura-gold focus:ring-1 focus:ring-nevura-gold focus:outline-none transition-all"
+                            placeholder="Tu Nombre">
+                    </div>
+                    <div class="mb-6 relative">
+                        <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="email" required
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white placeholder:text-slate-500 focus:border-nevura-gold focus:ring-1 focus:ring-nevura-gold focus:outline-none transition-all"
+                            placeholder="Correo Electrónico">
+                    </div>
+
+                    <div
+                        class="mb-6 flex items-center justify-between bg-slate-900/30 p-3 rounded-xl border border-white/5">
+                        <span class="text-sm text-slate-400 font-medium flex items-center gap-2"><i
+                                class="fa-solid fa-comment-dots"></i> ¿Quieres detallar tu proyecto?</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="messageToggle" class="sr-only peer" checked>
+                            <div
+                                class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-nevura-gold">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div id="messageBox" class="mb-6 hidden transition-all duration-300">
+                        <textarea rows="3"
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl py-4 px-4 text-white placeholder:text-slate-500 focus:border-nevura-gold focus:ring-1 focus:ring-nevura-gold focus:outline-none transition-all resize-none"
+                            placeholder="Cuéntame brevemente sobre tu proyecto..."></textarea>
+                    </div>
+
+                    <button type="submit"
+                        class="group relative w-full py-4 bg-nevura-gold text-black text-lg font-bold rounded-xl overflow-hidden hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all duration-300">
+                        <span class="relative z-10 flex items-center justify-center gap-3">Solicitar Diagnóstico <i
+                                class="fa-solid fa-paper-plane"></i></span>
+                        <div
+                            class="absolute inset-0 bg-white/30 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500">
+                        </div>
+                    </button>
+                    <p class="text-xs text-center text-slate-500 mt-4">Respuesta en menos de 24 hrs.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#01050a] py-10 border-t border-white/5 text-center relative z-10">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center gap-2 mb-4 md:mb-0 opacity-50 hover:opacity-100 transition-opacity">
+                <img src="assets/img/logo-nevura.png" alt="Nevura Logo" class="h-6 w-auto">
+                <span class="font-bold text-white tracking-widest">NEVURA</span>
+            </div>
+            <p class="text-slate-600 text-sm">
+                &copy; 2024 System Intelligence Solutions.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Script para el Switch del Mensaje
+        const messageToggle = document.getElementById('messageToggle');
+        const messageBox = document.getElementById('messageBox');
+
+        // Inicializar estado (si el HTML ya tiene 'checked', esto asegura que la caja se muestre)
+        if (messageToggle.checked) {
+            messageBox.classList.remove('hidden');
+        }
+
+        messageToggle.addEventListener('change', function () {
+            if (this.checked) {
+                messageBox.classList.remove('hidden');
+            } else {
+                messageBox.classList.add('hidden');
+            }
+        });
+
+        // 2. Script para animaciones al hacer scroll (Reveal)
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal-up");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+
+        // 3. Script de Partículas Nieve (Fondo Animado)
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray;
+        const numberOfParticles = (canvas.width * canvas.height) / 9000; // Mayor densidad
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5; // 1/3 más pequeños
+                this.speedX = (Math.random() * 0.2) - 0.1;
+                this.speedY = (Math.random() * 0.5) - 0.25;
+                this.opacity = Math.random() * 0.6 + 0.3; // Más visibles
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`;
+                ctx.fill();
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY; // Movimiento vertical
+
+                // Reiniciar si salen de pantalla para efecto infinito
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+
+        window.addEventListener('resize', function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        init();
+        animate();
+
+        // 4. Script para Carrusel de Capacidades
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const totalSlides = slides.length;
+        let slideInterval;
+
+        function showSlide(index) {
+            if (index >= totalSlides) slideIndex = 0;
+            if (index < 0) slideIndex = totalSlides - 1;
+
+            // Ocultar todos
+            slides.forEach(slide => {
+                slide.classList.remove('opacity-100', 'z-10');
+                slide.classList.add('opacity-0', 'z-0');
+            });
+            indicators.forEach(ind => {
+                ind.classList.remove('bg-white', 'scale-125');
+                ind.classList.add('bg-white/50');
+            });
+
+            // Mostrar actual
+            slides[slideIndex].classList.remove('opacity-0', 'z-0');
+            slides[slideIndex].classList.add('opacity-100', 'z-10');
+
+            indicators[slideIndex].classList.remove('bg-white/50');
+            indicators[slideIndex].classList.add('bg-white', 'scale-125');
+        }
+
+        function moveSlide(n) {
+            slideIndex += n;
+            showSlide(slideIndex);
+            resetInterval();
+        }
+
+        function currentSlide(n) {
+            slideIndex = n;
+            showSlide(slideIndex);
+            resetInterval();
+        }
+
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => {
+                moveSlide(1);
+            }, 6000); // Cambio automático cada 6 seg
+        }
+
+        // Iniciar Carrusel
+        showSlide(slideIndex);
+        resetInterval();
+
+        // 5. Script para Carrusel de Testimonios
+        let tSlideIndex = 0;
+        const tSlides = document.querySelectorAll('.t-slide');
+        const tIndicators = document.querySelectorAll('.t-indicator');
+        const totalTSlides = tSlides.length;
+        let tSlideInterval;
+
+        function showTSlide(index) {
+            if (index >= totalTSlides) tSlideIndex = 0;
+            if (index < 0) tSlideIndex = totalTSlides - 1;
+
+            tSlides.forEach(slide => {
+                slide.classList.remove('opacity-100', 'z-10');
+                slide.classList.add('opacity-0', 'z-0');
+            });
+            tIndicators.forEach(ind => {
+                ind.classList.remove('bg-nevura-gold', 'scale-125');
+                ind.classList.add('bg-slate-700');
+            });
+
+            tSlides[tSlideIndex].classList.remove('opacity-0', 'z-0');
+            tSlides[tSlideIndex].classList.add('opacity-100', 'z-10');
+
+            tIndicators[tSlideIndex].classList.remove('bg-slate-700');
+            tIndicators[tSlideIndex].classList.add('bg-nevura-gold', 'scale-125');
+        }
+
+        function currentTSlide(n) {
+            tSlideIndex = n;
+            showTSlide(tSlideIndex);
+            resetTInterval();
+        }
+
+        function resetTInterval() {
+            clearInterval(tSlideInterval);
+            tSlideInterval = setInterval(() => {
+                tSlideIndex++;
+                showTSlide(tSlideIndex);
+            }, 7000); // 7 segundos para leer
+        }
+
+        if (totalTSlides > 0) {
+            showTSlide(tSlideIndex);
+            resetTInterval();
+        }
+
+        // 6. Mobile Menu Logic
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        let isMenuOpen = false;
+
+        mobileBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                mobileMenu.style.height = '100vh'; // Full screen height
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-xmark');
+            } else {
+                mobileMenu.style.height = '0';
+                menuIcon.classList.remove('fa-xmark');
+                menuIcon.classList.add('fa-bars');
+            }
+        });
+
+        // Close menu when clicking a link
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                isMenuOpen = false;
+                mobileMenu.style.height = '0';
+                menuIcon.classList.remove('fa-xmark');
+                menuIcon.classList.add('fa-bars');
+            });
+        });
+
+    </script>
+
+</body>
+
+</html>
